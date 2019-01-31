@@ -14,10 +14,9 @@ CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld
 CP = arm-none-eabi-objcopy
 
-#LKR_SCRIPT = $(PROGRAM).ld
-LKR_SCRIPT = ./stm32_libs/memory_layout_hd.ld
+LKR_SCRIPT = ./stm32_libs/memory_layout.ld
 
-FAMILY = STM32F10X_HD
+FAMILY = STM32F10X_MD
 
 DEFINES = -D$(FAMILY)
 INCLUDES = -I.stm32_libs/ \
