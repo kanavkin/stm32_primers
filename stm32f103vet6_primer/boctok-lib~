@@ -1,0 +1,10 @@
+system_hsi_stm32f10x.c
+-> uses the internal 8MHz oszillator
+-> shorting the external crystal does not stop the cpu
+-> MCO shows 8 MHz
+-> 26720 NOPs run in 40 ms (12 cycles/nop)
+
+system_stm32f10x.c
+-> shorting the external crystal stops the cpu
+-> MCO shows 8 MHz
+-> 26720 NOPs run in 5,2 ms (1,77 cycles/nop)

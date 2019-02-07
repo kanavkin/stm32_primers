@@ -1,62 +1,92 @@
 ####################################
-# stm32 timer led example Makefile
+# stm32 boctok standard makefile
+# tailored for stm32f103vet6_primer
 ####################################
 
-PROGRAM = timer_led
+# developers note: use "cat -etv Makefile" to check if all required tabs are present
 
+PROGRAM = stm32f103vet6_primer
 
-ALL_OFILES = main.o startup.o stm32_gpio.o system_stm32f10x.o
+# select according to cpu type:
+LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f512_r64.ld
 
+DEFINES = -DSTM32F10X_HD
+DEFINES += -DUSE_STDPERIPH_DRIVER
+
+# compiler options
+CFLAGS  = -c
+CFLAGS += -march=armv7-m -mcpu=cortex-m3 -mthumb
+CFLAGS += -fno-common -nostdlib -fno-builtin -ffreestanding
+CFLAGS += -Wall -O0 -g
+CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += $(DEFINES)
+
+## Library headers
+CFLAGS += -I./
+CFLAGS += -I/stm32_libs/stm32f10x/spl
+CFLAGS += -I/stm32_libs/stm32f10x/cmsis
+CFLAGS += -I/stm32_libs/stm32f10x/boctok
+
+## code objects
+
+# app code
+OBJS  = main.o
+
+# core support
+#OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x.o
+#OBJS += stm32_libs/stm32f10x/cmsis/system_hsi_stm32f10x.o
+OBJS += stm32_libs/stm32f10x/cmsis/system_hsi64_stm32f10x.o
+OBJS += stm32_libs/stm32f10x/cmsis/core_cm3.o
+
+# drivers
+OBJS += stm32_libs/stm32f10x/boctok/stm32f10x_gpio_boctok.o
+OBJS += stm32_libs/stm32f10x/spl/stm32f10x_rcc.c
+OBJS += stm32_libs/stm32f10x/spl/stm32f10x_flash.c
+
+# startup file
+OBJS += stm32_libs/stm32f10x/cmsis/startup_stm32f10x_hd.o
+
+# linker options
+LFLAGS  = -nostartfiles -Wl,--gc-sections -specs=nano.specs
+LFLAGS += $(DEFINES)
+
+# toolchain setting
+CC 	= arm-none-eabi-gcc
+LD      = arm-none-eabi-gcc
+AR      = arm-none-eabi-ar
+AS      = arm-none-eabi-as
+OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
+SIZE 	= arm-none-eabi-size
+
+# internal variables
 TARGET_BIN = $(PROGRAM).bin
 TARGET_ELF = $(PROGRAM).elf
 
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-ld
-CP = arm-none-eabi-objcopy
-
-#LKR_SCRIPT = $(PROGRAM).ld
-LKR_SCRIPT = ./stm32_libs/memory_layout_hd.ld
-
-FAMILY = STM32F10X_HD
-
-DEFINES = -D$(FAMILY)
-INCLUDES = -I.stm32_libs/ \
-            -I.stm32_libs/SPL/ \
-
-
-CFLAGS  = -c -march=armv7-m -mcpu=cortex-m3 -mthumb \
-          -fno-common -nostdlib -fno-builtin -ffreestanding \
-          -Wall -O0 -g -ffunction-sections -fdata-sections \
-          $(DEFINES)
-
-LFLAGS  = -nostartfiles -T$(LKR_SCRIPT) -I.stm32_libs/ -I.stm32_libs/SPL/  --gc-sections
-CPFLAGS = -Obinary
-
+#################################
+## RULES
+#################################
 .PHONY: all clean write
 
 all: $(TARGET_BIN)
 
+#%.bin: %.elf
+#    $(OBJCOPY) --strip-unneeded -O binary $< $@
+
 $(TARGET_BIN): $(TARGET_ELF)
-	$(CP) $(CPFLAGS) $< $@
+	$(OBJCOPY) --strip-unneeded -O binary $(TARGET_ELF) $(TARGET_BIN) 
 
-$(TARGET_ELF): $(ALL_OFILES)
-	$(LD) $(LFLAGS) $(ALL_OFILES) -o $@
+$(TARGET_ELF): $(OBJS) 
+	$(LD) $(LFLAGS) -T$(LKR_SCRIPT) -o $(TARGET_ELF) $(OBJS) 
 
-
-startup.o: stm32_libs/startup.c
-	$(CC) $(INCLUDES) $(CFLAGS) stm32_libs/startup.c -o $@
-
-system_stm32f10x.o: stm32_libs/system_stm32f10x.c
-	$(CC) $(INCLUDES) $(CFLAGS) stm32_libs/system_stm32f10x.c -o $@
-
-stm32_gpio.o: stm32_libs/boctok/stm32_gpio.c
-	$(CC) $(INCLUDES) $(CFLAGS) stm32_libs/boctok/stm32_gpio.c -o $@
-
-main.o: main.c
-	$(CC) $(INCLUDES) $(CFLAGS) main.c -o $@
+#%.o: %.c
+#	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf *.o *.elf *.bin
+#	rm -rf *.o *.elf *.bin
+	find . -type f -name '*.o' -delete
+	find . -type f -name '*.elf' -delete
+	find . -type f -name '*.bin' -delete
 
 write:
 	/opt/stlink/st-upload.sh $(TARGET_BIN)
