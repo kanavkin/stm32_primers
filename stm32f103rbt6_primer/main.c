@@ -10,19 +10,19 @@
 
 int main(void)
 {
-  // Enable PORT C clock
-  RCC->APB2ENR |= RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPAEN;
+  // Enable PORT A clock
+  RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
 
   // Enable TIM2 clock, PCLK1= 64 MHz
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
   
-  // Initialize GPIOC PIN13
-  GPIO_configure(GPIOC, 13, GPIO_OUT_OD_2MHZ);
+  // Initialize GPIOA Pin 11
+  GPIO_configure(GPIOA, 11, GPIO_OUT_PP_2MHZ);
 
   // Turn off LED to start with
-  GPIOC->BSRR= (uint32_t) (1 << 13);
+  gpio_set_pin(GPIOA, 11, OFF);
   
-  //enable timer 3 irq (prio 2)
+  //enable timer 2 irq (prio 2)
   NVIC_SetPriority(TIM2_IRQn, 1UL);
   NVIC_ClearPendingIRQ(TIM2_IRQn);
   NVIC_EnableIRQ(TIM2_IRQn);
@@ -65,7 +65,7 @@ void TIM2_IRQHandler(void)
       /**
       toggle led
       */
-      gpio_set_pin(GPIOC, 13, TOGGLE);
+      gpio_set_pin(GPIOA, 11, TOGGLE);
 
     }
 }

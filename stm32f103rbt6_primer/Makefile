@@ -7,10 +7,10 @@
 PROGRAM = stm32f103vet6_primer
 
 # select linker script according to cpu type:
-LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f512_r64.ld
+LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f128_r20.ld
 
 # set defines for SPL configuration
-DEFINES = -DSTM32F10X_HD
+DEFINES = -DSTM32F10X_MD
 DEFINES += -DUSE_STDPERIPH_DRIVER
 
 # compiler options
@@ -52,7 +52,7 @@ TARGET_ELF = $(PROGRAM).elf
 OBJS  = main.o
 
 # startup file
-OBJS += stm32_libs/stm32f10x/startup_files/startup_stm32f10x_hd.o
+OBJS += stm32_libs/stm32f10x/startup_files/startup_stm32f10x_md.o
 
 # core support
 OBJS += stm32_libs/stm32f10x/cmsis/system_hsi64_stm32f10x.o

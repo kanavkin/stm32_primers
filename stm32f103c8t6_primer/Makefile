@@ -52,7 +52,7 @@ TARGET_ELF = $(PROGRAM).elf
 OBJS  = main.o
 
 # startup file
-OBJS += stm32_libs/stm32f10x/startup_files/startup_stm32f10x_hd.o
+OBJS += stm32_libs/stm32f10x/startup_files/startup_stm32f10x_md.o
 
 # core support
 OBJS += stm32_libs/stm32f10x/cmsis/system_hse64_stm32f10x.o

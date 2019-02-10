@@ -11,7 +11,7 @@
 int main(void)
 {
   // Enable PORT C clock
-  RCC->APB2ENR |= RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPAEN;
+  RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
 
   // Enable TIM2 clock, PCLK1= 64 MHz
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
