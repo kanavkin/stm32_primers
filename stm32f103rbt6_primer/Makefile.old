@@ -5,10 +5,11 @@
 
 # developers note: use "cat -etv Makefile" to check if all required tabs are present
 
-PROGRAM = stm32f103c8t6_primer
+PROGRAM = stm32f103rbt6_primer
 
 # select according to cpu type:
-LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f64_r20.ld
+LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f128_r20.ld
+
 
 DEFINES = -DSTM32F10X_MD
 DEFINES += -DUSE_STDPERIPH_DRIVER
@@ -33,18 +34,20 @@ CFLAGS += -I/stm32_libs/stm32f10x/boctok
 OBJS  = main.o
 
 # core support
-#OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x.o
-OBJS += stm32_libs/stm32f10x/cmsis/system_hsi_stm32f10x.o
+OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x.o
+#OBJS += stm32_libs/stm32f10x/cmsis/system_hsi_stm32f10x.o
 OBJS += stm32_libs/stm32f10x/cmsis/core_cm3.o
 
 # drivers
 OBJS += stm32_libs/stm32f10x/boctok/stm32f10x_gpio_boctok.o
 
 # startup file
-OBJS += stm32_libs/stm32f10x/cmsis/startup_stm32f10x_hd.o
+OBJS += stm32_libs/stm32f10x/startup/startup_stm32f10x_md.o
+#OBJS += stm32_libs/stm32f10x/startup/startup.c
 
 # linker options
 LFLAGS  = -nostartfiles -Wl,--gc-sections -specs=nano.specs
+LFLAGS += $(DEFINES)
 
 # toolchain setting
 CC 	= arm-none-eabi-gcc
