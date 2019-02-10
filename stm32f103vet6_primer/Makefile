@@ -1,18 +1,17 @@
 ####################################
 # stm32 boctok standard makefile
-# tailored for stm32f103vet6_primer
 ####################################
 
 # developers note: use "cat -etv Makefile" to check if all required tabs are present
 
 PROGRAM = stm32f103vet6_primer
 
-# select according to cpu type:
+# select linker script according to cpu type:
 LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f512_r64.ld
 
+# set defines for SPL configuration
 DEFINES = -DSTM32F10X_HD
 DEFINES += -DUSE_STDPERIPH_DRIVER
-DEFINES += -DSYSCLK_HSI64
 
 # compiler options
 CFLAGS  = -c
@@ -27,28 +26,6 @@ CFLAGS += -I./
 CFLAGS += -I/stm32_libs/stm32f10x/spl
 CFLAGS += -I/stm32_libs/stm32f10x/cmsis
 CFLAGS += -I/stm32_libs/stm32f10x/boctok
-
-## code objects
-
-# app code
-OBJS  = main.o
-
-# core support
-#OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x.o
-OBJS += stm32_libs/stm32f10x/cmsis/system_hsi_stm32f10x.o
-#OBJS += stm32_libs/stm32f10x/cmsis/system_hsi64_stm32f10x.o
-#OBJS += stm32_libs/stm32f10x/cmsis/system_hse72_stm32f10x.o
-#OBJS += stm32_libs/stm32f10x/cmsis/system_hse64_stm32f10x.o
-#OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x_boctok.o
-OBJS += stm32_libs/stm32f10x/cmsis/core_cm3.o
-
-# drivers
-OBJS += stm32_libs/stm32f10x/boctok/stm32f10x_gpio_boctok.o
-OBJS += stm32_libs/stm32f10x/spl/stm32f10x_rcc.c
-OBJS += stm32_libs/stm32f10x/spl/stm32f10x_flash.c
-
-# startup file
-OBJS += stm32_libs/stm32f10x/cmsis/startup_stm32f10x_hd.o
 
 # linker options
 LFLAGS  = -nostartfiles -Wl,--gc-sections -specs=nano.specs
@@ -66,6 +43,26 @@ SIZE 	= arm-none-eabi-size
 # internal variables
 TARGET_BIN = $(PROGRAM).bin
 TARGET_ELF = $(PROGRAM).elf
+
+#################################
+## code objects
+#################################
+
+# app code
+OBJS  = main.o
+
+# startup file
+OBJS += stm32_libs/stm32f10x/startup_files/startup_stm32f10x_hd.o
+
+# core support
+OBJS += stm32_libs/stm32f10x/cmsis/system_hsi64_stm32f10x.o
+OBJS += stm32_libs/stm32f10x/cmsis/core_cm3.o
+
+# drivers
+OBJS += stm32_libs/stm32f10x/boctok/stm32f10x_gpio_boctok.o
+OBJS += stm32_libs/stm32f10x/spl/stm32f10x_rcc.c
+OBJS += stm32_libs/stm32f10x/spl/stm32f10x_flash.c
+
 
 #################################
 ## RULES
