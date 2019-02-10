@@ -12,6 +12,7 @@ LKR_SCRIPT = stm32_libs/stm32f10x/linker_scripts/stm32f10x_f512_r64.ld
 
 DEFINES = -DSTM32F10X_HD
 DEFINES += -DUSE_STDPERIPH_DRIVER
+DEFINES += -DSYSCLK_HSI64
 
 # compiler options
 CFLAGS  = -c
@@ -34,8 +35,11 @@ OBJS  = main.o
 
 # core support
 #OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x.o
-#OBJS += stm32_libs/stm32f10x/cmsis/system_hsi_stm32f10x.o
-OBJS += stm32_libs/stm32f10x/cmsis/system_hsi64_stm32f10x.o
+OBJS += stm32_libs/stm32f10x/cmsis/system_hsi_stm32f10x.o
+#OBJS += stm32_libs/stm32f10x/cmsis/system_hsi64_stm32f10x.o
+#OBJS += stm32_libs/stm32f10x/cmsis/system_hse72_stm32f10x.o
+#OBJS += stm32_libs/stm32f10x/cmsis/system_hse64_stm32f10x.o
+#OBJS += stm32_libs/stm32f10x/cmsis/system_stm32f10x_boctok.o
 OBJS += stm32_libs/stm32f10x/cmsis/core_cm3.o
 
 # drivers

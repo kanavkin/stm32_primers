@@ -22,7 +22,7 @@ int main(void)
   /* Turn off LED to start with */
   GPIOC->BSRR= (uint32_t) (1 << 13);
   
-  /* Enable TIM2 clock, PCLK1= 32 MHz */
+  /* Enable TIM2 clock, PCLK1= 64 MHz */
   RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 
   /* Enable TIM2 global interrupt */
@@ -31,7 +31,7 @@ int main(void)
   /* Frequency after prescaler = 32MHz/(31999+1) = 1KHz.
    * Compare register = 500 so a compare match occurs every 0.5s -> T= 0,1 ms
    */
-  TIM2->PSC = (uint16_t) 31999;
+  TIM2->PSC = (uint16_t) 63999;
   TIM2->CCR1 = (uint16_t) 500;
 
   TIM2->EGR = TIM_EGR_UG;

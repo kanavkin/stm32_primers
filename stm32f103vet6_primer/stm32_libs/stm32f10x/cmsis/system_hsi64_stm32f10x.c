@@ -1,99 +1,6 @@
-/**
-  ******************************************************************************
-  * @file    system_stm32f10x.c
-  * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-April-2014
-  * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
-  * 
-  *          This file contains the system clock configuration for STM32F103 devices
-  *          and is customized for use with stm32f103_nucleo Kit. 
-  *          The STM32F103 is configured to run at 72 MHz, following the three  
-  *          configuration below:
-  *            - PLL_SOURCE_HSI   (default)     : HSI (~8MHz) used to clock the PLL, and
-  *                                               the PLL is used as system clock source,
-  *                                               64 MHz is maximum frequency on PLL HSI mode.
-  *            - PLL_SOURCE_HSE                 : HSE (8MHz) used to clock the PLL, and 
-  *                                               the PLL is used as system clock source.
-  *            - PLL_SOURCE_HSE_BYPASS          : HSE bypassed with an external clock 
-  *                                              (8MHz, coming from ST-Link) used to clock
-  *                                              the PLL, and the PLL is used as system
-  *                                              clock source.  
-  *              
-  * 1.  This file provides two functions and one global variable to be called from 
-  *     user application:
-  *      - SystemInit(): Setups the system clock (System clock source, PLL Multiplier
-  *                      factors, AHB/APBx prescalers and Flash settings). 
-  *                      This function is called at startup just after reset and 
-  *                      before branch to main program. This call is made inside
-  *                      the "startup_stm32f10x_xx.s" file.
-  *
-  *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
-  *                                  by the user application to setup the SysTick 
-  *                                  timer or configure other parameters.
-  *                                     
-  *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
-  *                                 be called whenever the core clock is changed
-  *                                 during program execution.
-  *
-  * 2. After each device reset the HSI (8 MHz) is used as system clock source.
-  *    Then SystemInit() function is called, in "startup_stm32f10x_xx.s" file, to
-  *    configure the system clock before to branch to main program.
-  *
-  * 3. If the system clock source selected by user fails to startup, the SystemInit()
-  *    function will do nothing and HSI still used as system clock source. User can 
-  *    add some code to deal with this issue inside the SetSysClock() function.
-  *
-  * 4. The default value of HSE crystal is set to 8 MHz. 
-  *    When HSE is used as system clock source, directly or through PLL, and you
-  *    are using different crystal you have to adapt the HSE value to your own
-  *    configuration.
-  *        
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
-  *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  ******************************************************************************
-  */
  
-/* Includes ------------------------------------------------------------------*/
 #include "../spl/stm32f10x.h"
-
-
-/*!< Uncomment the line corresponding to the desired System clock (SYSCLK)
-   frequency (after reset the HSI is used as SYSCLK source)
-   
-   IMPORTANT NOTE:
-   ============== 
-   1. After each device reset the HSI is used as System clock source.
-      
-   2. If none of the define below is enabled, the HSI is used as System clock
-    source.
-   3. The System clock configuration functions provided within this file assume
-      that an external 8MHz crystal is used to drive the System clock.
-     If you are using different crystal you have to adapt those functions accordingly.
-    */
     
-
-// HSI clocks the PLL, and the PLL is used as system clock source (64 MHz)
-#define CLOCK_HSI64
-
-// HSI gives 8 MHz System Clock
-//#define CLOCK_HSI8
-
 
 uint32_t SystemCoreClock = 64000000;
 
@@ -101,8 +8,6 @@ __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9}
 
 
 static void SetSysClock(void);
-static void SetSysClock_HSI64(void);
-static void SetSysClock_HSI(void);
 
 
 
@@ -145,132 +50,11 @@ void SystemInit (void)
 
 }
 
-/**
-  * @brief  Update SystemCoreClock variable according to Clock Register Values.
-  *         The SystemCoreClock variable contains the core clock (HCLK), it can
-  *         be used by the user application to setup the SysTick timer or configure
-  *         other parameters.
-  *           
-  * @note   Each time the core clock (HCLK) changes, this function must be called
-  *         to update SystemCoreClock variable value. Otherwise, any configuration
-  *         based on this variable will be incorrect.         
-  *     
-  * @note   - The system frequency computed by this function is not the real 
-  *           frequency in the chip. It is calculated based on the predefined 
-  *           constant and the selected clock source:
-  *             
-  *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(*)
-  *                                              
-  *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(**)
-  *                          
-  *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(**) 
-  *             or HSI_VALUE(*) multiplied by the PLL factors.
-  *         
-  *         (*) HSI_VALUE is a constant defined in stm32f1xx.h file (default value
-  *             8 MHz) but the real value may vary depending on the variations
-  *             in voltage and temperature.   
-  *    
-  *         (**) HSE_VALUE is a constant defined in stm32f1xx.h file (default value
-  *              8 MHz or 25 MHz, depending on the product used), user has to ensure
-  *              that HSE_VALUE is same as the real frequency of the crystal used.
-  *              Otherwise, this function may have wrong result.
-  *                
-  *         - The result of this function could be not correct when using fractional
-  *           value for HSE crystal.
-  * @param  None
-  * @retval None
-  */
+
+
 void SystemCoreClockUpdate (void)
 {
-  uint32_t tmp = 0, pllmull = 0, pllsource = 0;
-  
-  /* Get SYSCLK source -------------------------------------------------------*/
-  tmp = RCC->CFGR & RCC_CFGR_SWS;
-  
-  switch (tmp)
-  {
-  case 0x00:  /* HSI used as system clock */
-    SystemCoreClock = HSI_VALUE;
-    break;
-  case 0x04:  /* HSE used as system clock */
-    SystemCoreClock = HSE_VALUE;
-    break;
-  case 0x08:  /* PLL used as system clock */
-    
-    /* Get PLL clock source and multiplication factor ----------------------*/
-    pllmull = RCC->CFGR & RCC_CFGR_PLLMULL;
-    pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
-    
-    pllmull = ( pllmull >> 18) + 2;
-    
-    if (pllsource == 0x00)
-    {
-      /* HSI oscillator clock divided by 2 selected as PLL clock entry */
-      SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
-    }
-    else
-    {        
-      /* HSE selected as PLL clock entry */
-      if ((RCC->CFGR & RCC_CFGR_PLLXTPRE) != (uint32_t)RESET)
-      {/* HSE oscillator clock divided by 2 */
-        SystemCoreClock = (HSE_VALUE >> 1) * pllmull;
-      }
-      else
-      {
-        SystemCoreClock = HSE_VALUE * pllmull;
-      }        
-    }
-    break;
-  default:
-    SystemCoreClock = HSI_VALUE;
-    break;
-  }
-  
-  /* Compute HCLK clock frequency ----------------*/
-  /* Get HCLK prescaler */
-  tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
-  /* HCLK clock frequency */
-  SystemCoreClock >>= tmp;  
-}
-
-
-
-
-
-/**
-  * @brief  Sets System clock frequency to 72MHz and configure HCLK, PCLK2 
-  *         and PCLK1 prescalers. 
-  * @note   This function should be used only after reset.
-  * @param  None
-  * @retval None
-  */
-static void SetSysClock_HSI(void)
-{
-
-  /* At this stage the HSI is already enabled */
-    
-  /* Enable Prefetch Buffer */
-  FLASH->ACR &= ~FLASH_ACR_PRFTBE;
-
-  /* Flash no wait state */
-  FLASH->ACR &= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
-    FLASH->ACR |= (uint32_t)FLASH_ACR_LATENCY_2;    
-
- 
-    /* HCLK = SYSCLK */
-    RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
-      
-    /* PCLK2 = HCLK */
-    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
-    
-    /* PCLK1 = HCLK */
-    RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;
-    
-    /* Select PLL as system clock source */
-    //    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
-    //    RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
-
-
+  SystemCoreClock = 64000000;
 }
 
 
@@ -282,7 +66,7 @@ static void SetSysClock_HSI(void)
   * @param  None
   * @retval None
   */
-static void SetSysClock_HSI64(void)
+static void SetSysClock(void)
 {  
   /* HSI is already enabled */
   
@@ -326,11 +110,3 @@ static void SetSysClock_HSI64(void)
 
 }
 
-
-
-static void SetSysClock(void)
-{
-#ifdef CLOCK_HSI64
-  SetSysClock_HSI64();
-#endif
-}
