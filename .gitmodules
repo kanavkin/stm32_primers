@@ -1,3 +1,6 @@
 [submodule "stm32f103vet6_primer/stm32_libs"]
 	path = stm32f103vet6_primer/stm32_libs
 	url = https://github.com/kanavkin/stm32_libs.git
+[submodule "stm32f103c8t6_primer/stm32_libs"]
+	path = stm32f103c8t6_primer/stm32_libs
+	url = https://github.com/kanavkin/stm32_libs.git
